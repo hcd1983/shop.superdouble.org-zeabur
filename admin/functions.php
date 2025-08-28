@@ -18,9 +18,7 @@ if(file_exists($dbsetUrl)):
 //	print_r($dbset);
 	$db_conn = mysqli_connect($dbset["url"], $dbset["ur"], $dbset["pw"],$dbset["db"]);
 	mysqli_query($db_conn, "SET NAMES utf8");
-
-    $sql = 'SET @@session.time_zone = ‘+08:00’';
-    mysqli_query($db_conn, $sql);
+	mysqli_query($db_conn, "SET time_zone = '+08:00'");
 else:
 
 	if($install!==1):
