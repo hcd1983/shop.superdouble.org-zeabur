@@ -8,7 +8,28 @@
 set_time_limit(600);
 ini_set('memory_limit', '512M');
 
-$upload_dir = __DIR__ . '/wp-content/uploads/';
+// 檢查可能的上傳目錄位置
+$possible_paths = [
+    __DIR__ . '/wp-content/uploads/',
+    __DIR__ . '/html/wp-content/uploads/',
+    $_SERVER['DOCUMENT_ROOT'] . '/wp-content/uploads/',
+    dirname(__DIR__) . '/html/wp-content/uploads/'
+];
+
+$upload_dir = null;
+foreach ($possible_paths as $path) {
+    if (file_exists(dirname($path))) {
+        $upload_dir = $path;
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+        break;
+    }
+}
+
+if (!$upload_dir) {
+    $upload_dir = __DIR__ . '/wp-content/uploads/';
+}
 $message = '';
 $error = '';
 
@@ -212,6 +233,7 @@ if (is_dir($upload_dir)) {
                 <li>上傳大檔案可能需要較長時間</li>
                 <li>確保 PHP 的 upload_max_filesize 和 post_max_size 設定足夠大</li>
                 <li>當前限制：<?php echo ini_get('upload_max_filesize'); ?></li>
+                <li>上傳目錄：<?php echo $upload_dir; ?></li>
             </ul>
         </div>
     </div>
