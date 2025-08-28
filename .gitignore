@@ -8,7 +8,7 @@
 # /xmlrpc.php
 
 # Configuration Files
-wp-config.php
+# wp-config.php - 保留以便 Zeabur 部署使用
 .env
 .env.local
 # 保留 wp-config-zeabur.php 和 .env.example 以便部署使用
