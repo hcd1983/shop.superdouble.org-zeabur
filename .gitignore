@@ -42,9 +42,18 @@ Thumbs.db
 *.sublime-workspace
 
 # Docker Files (保留 Dockerfile 和必要的 Docker 設定以供 Zeabur 使用)
-docker-compose-local.yml
+docker-compose*.yml
+docker-compose.yml
 # Dockerfile - 保留供 Zeabur 使用
 # /docker/ - 保留供 Zeabur 使用
+
+# 本地開發檔案
+deploy.sh
+quick-deploy.sh
+prepare-for-zeabur.sh
+phpmyadmin-config.inc.php
+zeabur-services.yaml
+.zeaburignore
 
 # Backup Files
 *.zip
@@ -67,3 +76,11 @@ yarn-error.log
 *.bak
 *.swp
 *~
+
+# 臨時檔案
+_index.html
+fix-redirect.php
+wp-config-url-fix.txt
+README.Docker.md
+ZEABUR_PHPMYADMIN.md
+ZEABUR_QUICK_DEPLOY.md

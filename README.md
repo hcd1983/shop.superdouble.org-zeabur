@@ -28,13 +28,28 @@ git push -u origin main
 
 ### 步驟 3: 設定 MySQL 資料庫
 
-1. 在 Zeabur 專案中，點擊「添加服務」
-2. 選擇「MySQL」
+1. 在 Zeabur 專案中，點擊「Add Service」
+2. 選擇「Prebuilt」→「MySQL」
 3. 記下資料庫連線資訊：
-   - 主機名稱 (DB_HOST)
-   - 資料庫名稱 (DB_NAME)
-   - 使用者名稱 (DB_USER)
-   - 密碼 (DB_PASSWORD)
+   - 主機名稱 (DB_HOST) - 通常是 `mysql.zeabur.internal`
+   - 資料庫名稱 (DB_NAME) - 預設是 `zeabur`
+   - 使用者名稱 (DB_USER) - 預設是 `root`
+   - 密碼 (DB_PASSWORD) - 在 MySQL 服務的 Variables 中查看
+
+### 步驟 3.1: 安裝 phpMyAdmin（選用）
+
+1. 在 Zeabur 專案中，點擊「Add Service」
+2. 選擇「Prebuilt」→「phpMyAdmin」
+3. Zeabur 會自動連接到你的 MySQL 服務
+4. 部署完成後，點擊 phpMyAdmin 服務的域名即可訪問
+
+或者手動配置：
+1. 點擊「Add Service」→「Git」
+2. 選擇 phpMyAdmin 儲存庫：`https://github.com/phpmyadmin/phpmyadmin`
+3. 添加環境變數：
+   - `PMA_HOST`: mysql.zeabur.internal
+   - `PMA_PORT`: 3306
+   - `UPLOAD_LIMIT`: 256M
 
 ### 步驟 4: 配置環境變數
 
