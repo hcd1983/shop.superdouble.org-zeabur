@@ -12,7 +12,14 @@
    在 Zeabur 專案設定中，新增以下環境變數：
 
    ```
-   # 資料庫設定
+   # 資料庫設定（Zeabur MySQL 服務會自動提供這些變數）
+   # 如果使用 Zeabur MySQL，這些會自動設定：
+   MYSQL_DATABASE=zeabur
+   MYSQL_USERNAME=root
+   MYSQL_PASSWORD=（Zeabur 自動生成）
+   MYSQL_HOST=mysql.zeabur.internal
+   
+   # 或手動設定（用於外部資料庫）：
    DB_NAME=atomdpc3_superdouble_wp
    DB_USER=你的資料庫使用者
    DB_PASSWORD=你的資料庫密碼

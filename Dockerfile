@@ -55,18 +55,19 @@ COPY . /var/www/html/
 # 設定權限
 RUN chown -R www-data:www-data /var/www/html
 
-# 建立一個啟動腳本來處理 wp-config.php
-RUN echo '#!/bin/bash\n\
-# 如果環境變數存在但 wp-config.php 不存在，則使用模板建立\n\
-if [ ! -f /var/www/html/wp-config.php ] && [ -f /var/www/html/wp-config-zeabur.php ]; then\n\
-    cp /var/www/html/wp-config-zeabur.php /var/www/html/wp-config.php\n\
-fi\n\
-# 啟動 Apache\n\
-apache2-foreground' > /usr/local/bin/docker-entrypoint.sh \
-    && chmod +x /usr/local/bin/docker-entrypoint.sh
+# 如果 wp-config.php 不存在，從模板複製
+RUN if [ ! -f /var/www/html/wp-config.php ] && [ -f /var/www/html/wp-config-zeabur.php ]; then \
+        cp /var/www/html/wp-config-zeabur.php /var/www/html/wp-config.php; \
+    fi
+
+# 確保目錄權限正確
+RUN chmod -R 755 /var/www/html \
+    && find /var/www/html -type d -exec chmod 755 {} \; \
+    && find /var/www/html -type f -exec chmod 644 {} \; \
+    && chmod -R 777 /var/www/html/wp-content/uploads 2>/dev/null || true
 
 # 暴露端口
 EXPOSE 80
 
-# 使用自訂的啟動腳本
-CMD ["/usr/local/bin/docker-entrypoint.sh"]
+# 使用預設的 Apache 啟動命令
+CMD ["apache2-foreground"]
