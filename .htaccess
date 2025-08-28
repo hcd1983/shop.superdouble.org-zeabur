@@ -18,6 +18,15 @@ AddHandler application/x-httpd-php73 .php
 
 # END Wordfence WAF
 
+# Force HTTPS Redirect
+<IfModule mod_rewrite.c>
+RewriteEngine On
+# Force HTTPS for all requests
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
 # BEGIN WordPress
 # 在含有 BEGIN WordPress 及 END WordPress 標記的這兩行間的指示詞內容為動態產生，
 # 且應僅有 WordPress 篩選器能進行修改。對這兩行間任何指示詞內容的變更，
