@@ -31,6 +31,12 @@
    SECURE_AUTH_SALT=產生的金鑰
    LOGGED_IN_SALT=產生的金鑰
    NONCE_SALT=產生的金鑰
+   
+   # Admin Panel 資料庫設定
+   ADMIN_DB_HOST=db
+   ADMIN_DB_NAME=atomdpc3_superdouble
+   ADMIN_DB_USER=atomdpc3_hcd1983
+   ADMIN_DB_PASSWORD=你的資料庫密碼
    ```
 
    > 提示：可以在 https://api.wordpress.org/secret-key/1.1/salt/ 產生新的安全金鑰
