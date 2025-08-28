@@ -1,0 +1,35 @@
+
+.mfp-loading {
+    position: absolute;
+    /* height: 80px; */
+    top: 50%;
+    width: 100%;
+    text-align: center;
+    color: #FFF; 
+    font-size: 40px;
+    line-height: 1;
+    margin-top: -40px;
+    z-index: 99;
+}
+
+.sendmemail_mfp .mfp-content {	
+	height: 600px;	
+	max-width: 500px;
+	/*overflow-x: hidden;
+	overflow-y: hidden;*/
+}
+
+
+ 
+.sendmemail_mfp .mfp-content::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+
+ 
+.sendmemail_mfp .mfp-content::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}
+
+

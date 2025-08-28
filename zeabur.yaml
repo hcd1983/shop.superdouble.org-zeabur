@@ -1,0 +1,42 @@
+# Zeabur Configuration
+name: superdouble-shop
+runtime: php-apache
+
+# PHP 版本配置
+php:
+  version: "7.3"
+  extensions:
+    - mysqli
+    - pdo_mysql
+    - gd
+    - zip
+    - mbstring
+    - xml
+    - curl
+    - bcmath
+    - exif
+    - intl
+
+# Apache 配置
+apache:
+  document_root: /
+  rewrite: true
+
+# 環境變數
+environment:
+  - WP_ENV=production
+  - WP_DEBUG=false
+  - WP_CACHE=true
+
+# 建構配置
+build:
+  commands:
+    - chmod -R 755 wp-content
+    - chmod -R 755 wp-content/uploads
+    - chmod 644 .htaccess
+
+# 健康檢查
+health_check:
+  path: /
+  interval: 30
+  timeout: 10

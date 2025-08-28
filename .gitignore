@@ -1,0 +1,69 @@
+# WordPress Core Files (如果使用 Composer 管理則取消註解)
+# /wp-admin/
+# /wp-includes/
+# /index.php
+# /license.txt
+# /readme.html
+# /wp-*.php
+# /xmlrpc.php
+
+# Configuration Files
+wp-config.php
+.env
+.env.local
+
+# Content Directories
+/wp-content/uploads/
+/wp-content/upgrade/
+/wp-content/backup-db/
+/wp-content/backups/
+/wp-content/blogs.dir/
+/wp-content/cache/
+/wp-content/advanced-cache.php
+/wp-content/wp-cache-config.php
+/wp-content/cache/
+/wp-content/plugins/hello.php
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+error_log
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE Files
+/.idea
+/.vscode
+*.sublime-project
+*.sublime-workspace
+
+# Docker Files (for production)
+docker-compose.yml
+docker-compose-local.yml
+Dockerfile
+/docker/
+
+# Backup Files
+*.zip
+*.tar
+*.gz
+backup_*.sql
+
+# Node (如果有使用)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Wordfence Security
+/wp-content/wflogs/
+/wordfence-waf.php
+
+# Custom
+/atom_install/
+/cgi-bin/
+*.bak
+*.swp
+*~

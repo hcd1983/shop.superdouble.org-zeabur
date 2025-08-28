@@ -1,0 +1,11 @@
+<?php
+$dbset['url']='db';
+$dbset['db']='atomdpc3_superdouble';
+$dbset['ur']='atomdpc3_hcd1983';
+$dbset['pw']='your_password';
+$dbset['table']['products']='products';
+$dbset['table']['users']='users';
+$dbset['table']['orders']='orders';
+$dbset['table']['settings']='settings';
+$dbset['table']['email']='email';
+?>

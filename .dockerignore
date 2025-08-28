@@ -1,0 +1,34 @@
+# 版本控制
+.git
+.gitignore
+
+# IDE 檔案
+.idea
+.vscode
+
+# 系統檔案
+.DS_Store
+Thumbs.db
+
+# 環境變數
+.env
+
+# 備份檔案
+*.sql
+*.zip
+*.tar.gz
+backup/
+
+# WordPress 上傳檔案（可選，如果要保留則註解掉）
+# wp-content/uploads/
+
+# 快取和暫存檔案
+wp-content/cache/
+wp-content/temp/
+
+# 日誌檔案
+*.log
+error_log
+
+# Node modules（如果有的話）
+node_modules/
