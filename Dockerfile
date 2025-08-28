@@ -1,5 +1,8 @@
 FROM php:7.3-apache
 
+# 設定 ServerName 避免 Apache 警告
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # 安裝必要的系統套件
 RUN apt-get update && apt-get install -y \
     libpng-dev \
@@ -11,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     curl \
+    default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # 設定 GD 擴展
@@ -55,10 +59,8 @@ COPY . /var/www/html/
 # 設定權限
 RUN chown -R www-data:www-data /var/www/html
 
-# 如果 wp-config.php 不存在，從模板複製
-RUN if [ ! -f /var/www/html/wp-config.php ] && [ -f /var/www/html/wp-config-zeabur.php ]; then \
-        cp /var/www/html/wp-config-zeabur.php /var/www/html/wp-config.php; \
-    fi
+# 確保 wp-config.php 存在（從模板複製）
+RUN cp /var/www/html/wp-config-zeabur.php /var/www/html/wp-config.php || true
 
 # 確保目錄權限正確
 RUN chmod -R 755 /var/www/html \

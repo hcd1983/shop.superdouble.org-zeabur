@@ -1,0 +1,15 @@
+{
+  "build": {
+    "type": "dockerfile",
+    "dockerfile": "./Dockerfile"
+  },
+  "env": {
+    "PHP_VERSION": "7.3"
+  },
+  "ports": [
+    {
+      "port": 80,
+      "protocol": "http"
+    }
+  ]
+}
