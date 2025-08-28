@@ -5,11 +5,11 @@
  */
 
 // Database Configuration from Environment Variables
-// Zeabur MySQL 內部連線使用 mysql.zeabur.internal
-define('DB_NAME', getenv('MYSQL_DATABASE') ?: getenv('DB_NAME') ?: 'zeabur');
-define('DB_USER', getenv('MYSQL_USERNAME') ?: getenv('DB_USER') ?: 'root');
-define('DB_PASSWORD', getenv('MYSQL_PASSWORD') ?: getenv('DB_PASSWORD') ?: '');
-define('DB_HOST', getenv('MYSQL_HOST') ?: getenv('DB_HOST') ?: 'mysql.zeabur.internal');
+// 優先使用 DB_* 環境變數，再使用 MYSQL_* 作為備用
+define('DB_NAME', getenv('DB_NAME') ?: getenv('MYSQL_DATABASE') ?: 'superdouble_wp');
+define('DB_USER', getenv('DB_USER') ?: getenv('MYSQL_USERNAME') ?: 'root');
+define('DB_PASSWORD', getenv('DB_PASSWORD') ?: getenv('MYSQL_PASSWORD') ?: '');
+define('DB_HOST', getenv('DB_HOST') ?: getenv('MYSQL_HOST') ?: 'mysql.zeabur.internal');
 define('DB_CHARSET', getenv('DB_CHARSET') ?: 'utf8mb4');
 define('DB_COLLATE', getenv('DB_COLLATE') ?: 'utf8mb4_unicode_ci');
 
