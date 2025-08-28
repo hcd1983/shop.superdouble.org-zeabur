@@ -14,7 +14,7 @@ git init
 git add .
 git commit -m "Initial commit for Zeabur deployment"
 git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+git remote add origin git@github.com:hcd1983/shop.superdouble.org-zeabur.git
 git push -u origin main
 ```
 
