@@ -53,11 +53,11 @@ if (extension_loaded('mysqli')) {
     echo "<p style='color:red'>mysqli extension not loaded!</p>";
 }
 
-// 顯示 wp-config.php 實際使用的值
-echo "<h2>wp-config-zeabur.php would use:</h2>";
+// 顯示 wp-config.php 實際會使用的值
+echo "<h2>wp-config.php would use:</h2>";
 echo "<pre>";
-echo "DB_NAME: " . (getenv('MYSQL_DATABASE') ?: getenv('DB_NAME') ?: 'zeabur') . "\n";
-echo "DB_USER: " . (getenv('MYSQL_USERNAME') ?: getenv('DB_USER') ?: 'root') . "\n";
-echo "DB_HOST: " . (getenv('MYSQL_HOST') ?: getenv('DB_HOST') ?: 'mysql.zeabur.internal') . "\n";
+echo "DB_NAME: " . (getenv('DB_NAME') ?: getenv('MYSQL_DATABASE') ?: 'superdouble_wp') . "\n";
+echo "DB_USER: " . (getenv('DB_USER') ?: getenv('MYSQL_USERNAME') ?: 'root') . "\n";
+echo "DB_HOST: " . (getenv('DB_HOST') ?: getenv('MYSQL_HOST') ?: 'mysql.zeabur.internal') . "\n";
 echo "</pre>";
 ?>
