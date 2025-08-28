@@ -11,6 +11,7 @@
 wp-config.php
 .env
 .env.local
+# 保留 wp-config-zeabur.php 和 .env.example 以便部署使用
 
 # Content Directories
 /wp-content/uploads/
@@ -40,11 +41,10 @@ Thumbs.db
 *.sublime-project
 *.sublime-workspace
 
-# Docker Files (for production)
-docker-compose.yml
+# Docker Files (保留 Dockerfile 和必要的 Docker 設定以供 Zeabur 使用)
 docker-compose-local.yml
-Dockerfile
-/docker/
+# Dockerfile - 保留供 Zeabur 使用
+# /docker/ - 保留供 Zeabur 使用
 
 # Backup Files
 *.zip
