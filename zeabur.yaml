@@ -31,9 +31,14 @@ environment:
 # 建構配置
 build:
   commands:
+    # 確保 uploads 目錄存在
+    - mkdir -p wp-content/uploads
+    # 設置正確的權限
     - chmod -R 755 wp-content
-    - chmod -R 755 wp-content/uploads
+    - chmod -R 777 wp-content/uploads
     - chmod 644 .htaccess
+    # 複製 wp-config 檔案
+    - if [ -f "wp-config-zeabur.php" ]; then cp wp-config-zeabur.php wp-config.php; fi
 
 # 健康檢查
 health_check:
