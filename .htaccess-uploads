@@ -1,0 +1,27 @@
+# Apache/Nginx 上傳限制配置
+# 將此內容加入主 .htaccess 或放在 uploads 目錄
+
+# PHP 值設定（Apache mod_php）
+<IfModule mod_php7.c>
+    php_value upload_max_filesize 100M
+    php_value post_max_size 100M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+    php_value memory_limit 256M
+</IfModule>
+
+# PHP 值設定（Apache FastCGI/FPM）
+<IfModule mod_fcgid.c>
+    FcgidMaxRequestLen 104857600
+    FcgidIOTimeout 300
+    FcgidBusyTimeout 300
+</IfModule>
+
+# LiteSpeed 設定
+<IfModule LiteSpeed>
+    php_value upload_max_filesize 100M
+    php_value post_max_size 100M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+    php_value memory_limit 256M
+</IfModule>

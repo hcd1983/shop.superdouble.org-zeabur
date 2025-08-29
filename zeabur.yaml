@@ -21,6 +21,8 @@ php:
 apache:
   document_root: /
   rewrite: true
+  # 提升上傳限制
+  max_request_size: 100M
 
 # 環境變數
 environment:
