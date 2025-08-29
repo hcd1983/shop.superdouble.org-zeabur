@@ -1,3 +1,51 @@
+# PHP Upload Settings - 提升上傳限制
+# 注意：這些設定只在 Apache mod_php 環境下有效
+<IfModule mod_php7.c>
+php_value upload_max_filesize 100M
+php_value post_max_size 100M
+php_value max_execution_time 600
+php_value max_input_time 600
+php_value memory_limit 256M
+php_value max_file_uploads 50
+</IfModule>
+
+# PHP 5 版本支援
+<IfModule mod_php5.c>
+php_value upload_max_filesize 100M
+php_value post_max_size 100M
+php_value max_execution_time 600
+php_value max_input_time 600
+php_value memory_limit 256M
+php_value max_file_uploads 50
+</IfModule>
+
+# LiteSpeed 伺服器設定
+<IfModule LiteSpeed>
+php_value upload_max_filesize 100M
+php_value post_max_size 100M
+php_value max_execution_time 600
+php_value max_input_time 600
+php_value memory_limit 256M
+</IfModule>
+
+# FastCGI 設定（如果使用 FastCGI）
+<IfModule mod_fcgid.c>
+FcgidMaxRequestLen 104857600
+FcgidIOTimeout 600
+FcgidBusyTimeout 600
+FcgidConnectTimeout 600
+</IfModule>
+
+# 安全性設定 - 限制可執行檔案類型
+<FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|jsp|asp|sh|cgi)$">
+    Order Deny,Allow
+    Deny from all
+    # 允許主要 PHP 檔案
+    <FilesMatch "^(index\.php|wp-login\.php|wp-admin\.php|admin-ajax\.php|upload_restore\.php|chunked_upload\.php)$">
+        Allow from all
+    </FilesMatch>
+</FilesMatch>
+
 # BEGIN WordPress
 <IfModule mod_rewrite.c>
 RewriteEngine On
