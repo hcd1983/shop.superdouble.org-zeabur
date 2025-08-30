@@ -5,6 +5,10 @@
  * 支援中文檔名編碼處理
  */
 
+// 設定錯誤報告（暫時關閉以避免 HTML 輸出）
+error_reporting(0);
+ini_set('display_errors', 0);
+
 session_start();
 
 // 引入中文檔名處理類別
@@ -24,6 +28,8 @@ if (!file_exists($temp_dir)) {
 
 // 處理分塊上傳
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json');
+    
     $action = $_POST['action'] ?? '';
     
     if ($action === 'upload_chunk') {
@@ -33,6 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $total_chunks = intval($_POST['total_chunks']);
         
         $target_file = $temp_dir . $filename . '.part' . $chunk_index;
+        
+        // 檢查上傳錯誤
+        if (!isset($_FILES['chunk']) || $_FILES['chunk']['error'] !== UPLOAD_ERR_OK) {
+            echo json_encode(['status' => 'error', 'message' => '上傳失敗：' . ($_FILES['chunk']['error'] ?? '沒有檔案')]);
+            exit;
+        }
         
         if (move_uploaded_file($_FILES['chunk']['tmp_name'], $target_file)) {
             // 檢查是否所有分塊都已上傳
