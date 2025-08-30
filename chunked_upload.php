@@ -2,9 +2,15 @@
 /**
  * 分塊上傳工具 - 繞過 Nginx 上傳限制
  * 支援大檔案分塊上傳
+ * 支援中文檔名編碼處理
  */
 
 session_start();
+
+// 引入中文檔名處理類別
+if (file_exists(__DIR__ . '/chinese_filename_handler.php')) {
+    require_once __DIR__ . '/chinese_filename_handler.php';
+}
 
 // 設定
 $upload_dir = __DIR__ . '/wp-content/uploads/';
@@ -55,14 +61,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // 解壓 ZIP 檔案
                 if (pathinfo($filename, PATHINFO_EXTENSION) === 'zip') {
-                    $zip = new ZipArchive();
-                    if ($zip->open($final_file) === TRUE) {
-                        $zip->extractTo($upload_dir);
-                        $zip->close();
-                        unlink($final_file); // 刪除 ZIP 檔案
-                        echo json_encode(['status' => 'completed', 'message' => '檔案已成功解壓']);
+                    // 檢查是否有中文檔名處理類別
+                    if (class_exists('ChineseFilenameHandler')) {
+                        // 使用中文檔名處理方法
+                        $result = ChineseFilenameHandler::extractZipWithChineseFix($final_file, $upload_dir);
+                        
+                        if ($result['success']) {
+                            unlink($final_file); // 刪除 ZIP 檔案
+                            $fileCount = count($result['files']);
+                            echo json_encode([
+                                'status' => 'completed', 
+                                'message' => "檔案已成功解壓（{$fileCount} 個檔案）",
+                                'details' => $result
+                            ]);
+                        } else {
+                            echo json_encode([
+                                'status' => 'error', 
+                                'message' => '解壓失敗：' . implode(', ', $result['errors'])
+                            ]);
+                        }
                     } else {
-                        echo json_encode(['status' => 'error', 'message' => '無法解壓檔案']);
+                        // 原始解壓方法
+                        $zip = new ZipArchive();
+                        if ($zip->open($final_file) === TRUE) {
+                            $zip->extractTo($upload_dir);
+                            $zip->close();
+                            unlink($final_file); // 刪除 ZIP 檔案
+                            echo json_encode(['status' => 'completed', 'message' => '檔案已成功解壓']);
+                        } else {
+                            echo json_encode(['status' => 'error', 'message' => '無法解壓檔案']);
+                        }
                     }
                 } else {
                     echo json_encode(['status' => 'completed', 'message' => '檔案已上傳']);
@@ -148,6 +176,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <h1>WordPress Uploads 分塊上傳工具</h1>
+    
+    <?php if (class_exists('ChineseFilenameHandler')): ?>
+    <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+        ✅ 中文檔名處理已啟用 - 支援 GBK/BIG5/UTF-8 編碼
+    </div>
+    <?php endif; ?>
     
     <div class="upload-area">
         <p>選擇 ZIP 檔案上傳（支援大檔案）</p>

@@ -2,11 +2,17 @@
 /**
  * WordPress Uploads 還原工具
  * 上傳並解壓 zip 檔案到 wp-content/uploads
+ * 支援中文檔名編碼處理
  */
 
 // 設定最大執行時間和記憶體
 set_time_limit(600);
 ini_set('memory_limit', '512M');
+
+// 引入中文檔名處理類別
+if (file_exists(__DIR__ . '/chinese_filename_handler.php')) {
+    require_once __DIR__ . '/chinese_filename_handler.php';
+}
 
 // 檢查可能的上傳目錄位置
 $possible_paths = [
@@ -43,21 +49,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['zip_file'])) {
         
         // 確認是 ZIP 檔案
         if (pathinfo($fileName, PATHINFO_EXTENSION) === 'zip') {
-            $zip = new ZipArchive();
-            
-            if ($zip->open($tempFile) === TRUE) {
-                // 解壓縮到 uploads 目錄
-                $zip->extractTo($upload_dir);
-                $zip->close();
+            // 檢查是否有中文檔名處理類別
+            if (class_exists('ChineseFilenameHandler')) {
+                // 使用中文檔名處理方法
+                $result = ChineseFilenameHandler::extractZipWithChineseFix($tempFile, $upload_dir);
                 
-                $message = "✅ 成功上傳並解壓：$fileName";
-                
-                // 設定權限
-                exec("chmod -R 755 " . escapeshellarg($upload_dir));
-                exec("chown -R www-data:www-data " . escapeshellarg($upload_dir));
+                if ($result['success']) {
+                    $fileCount = count($result['files']);
+                    $message = "✅ 成功上傳並解壓：$fileName\n";
+                    $message .= "解壓了 {$fileCount} 個檔案";
+                    
+                    if (!empty($result['errors'])) {
+                        $message .= "\n⚠️ 有一些警告：\n" . implode("\n", $result['errors']);
+                    }
+                } else {
+                    $error = "❌ 解壓失敗：" . implode("\n", $result['errors']);
+                }
             } else {
-                $error = "❌ 無法開啟 ZIP 檔案";
+                // 原始解壓方法（不處理中文編碼）
+                $zip = new ZipArchive();
+                
+                if ($zip->open($tempFile) === TRUE) {
+                    // 解壓縮到 uploads 目錄
+                    $zip->extractTo($upload_dir);
+                    $zip->close();
+                    
+                    $message = "✅ 成功上傳並解壓：$fileName";
+                    $message .= "\n⚠️ 注意：未使用中文檔名處理，可能有亂碼問題";
+                } else {
+                    $error = "❌ 無法開啟 ZIP 檔案";
+                }
             }
+            
+            // 設定權限
+            exec("chmod -R 755 " . escapeshellarg($upload_dir));
+            exec("chown -R www-data:www-data " . escapeshellarg($upload_dir));
         } else {
             $error = "❌ 請上傳 ZIP 格式的檔案";
         }
@@ -197,6 +223,7 @@ if (is_dir($upload_dir)) {
                 <li>在本地使用 <code>./zip_single_month.sh 2023 08</code> 打包單個月份</li>
                 <li>上傳打包好的 ZIP 檔案</li>
                 <li>系統會自動解壓到正確的位置</li>
+                <li>✅ <strong>支援中文檔名</strong>：自動處理 GBK/BIG5/UTF-8 編碼</li>
             </ol>
         </div>
         
@@ -234,6 +261,7 @@ if (is_dir($upload_dir)) {
                 <li>確保 PHP 的 upload_max_filesize 和 post_max_size 設定足夠大</li>
                 <li>當前限制：<?php echo ini_get('upload_max_filesize'); ?></li>
                 <li>上傳目錄：<?php echo $upload_dir; ?></li>
+                <li>中文檔名處理：<?php echo class_exists('ChineseFilenameHandler') ? '✅ 已啟用' : '⚠️ 未啟用'; ?></li>
             </ul>
         </div>
     </div>
