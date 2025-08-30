@@ -69,10 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if ($result['success']) {
                             unlink($final_file); // 刪除 ZIP 檔案
                             $fileCount = count($result['files']);
+                            $message = "檔案已成功解壓（{$fileCount} 個檔案）";
+                            if (!empty($result['errors'])) {
+                                $message .= "\n警告：" . implode(', ', $result['errors']);
+                            }
                             echo json_encode([
                                 'status' => 'completed', 
-                                'message' => "檔案已成功解壓（{$fileCount} 個檔案）",
-                                'details' => $result
+                                'message' => $message
                             ]);
                         } else {
                             echo json_encode([

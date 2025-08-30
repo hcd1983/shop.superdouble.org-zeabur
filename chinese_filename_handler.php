@@ -104,9 +104,10 @@ class ChineseFilenameHandler {
             $fixedPath = $extractTo . '/' . $fixedFilename;
             $fixedDir = dirname($fixedPath);
             
-            // 建立目錄
+            // 建立目錄（確保權限）
             if (!file_exists($fixedDir)) {
-                mkdir($fixedDir, 0755, true);
+                @mkdir($fixedDir, 0777, true);
+                @chmod($fixedDir, 0777);
             }
             
             // 如果是目錄，跳過
@@ -121,8 +122,8 @@ class ChineseFilenameHandler {
                 continue;
             }
             
-            // 寫入檔案
-            if (file_put_contents($fixedPath, $fileContent) !== false) {
+            // 寫入檔案（加入錯誤抑制）
+            if (@file_put_contents($fixedPath, $fileContent) !== false) {
                 $result['files'][] = [
                     'original' => $filename,
                     'fixed' => $fixedFilename,
