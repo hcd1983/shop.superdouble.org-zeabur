@@ -628,7 +628,6 @@ function inputCreater($arr){
 			    	if($value !=""):
 			    		if(is_array($value)){
 			    			break;
-			    			continue;
 			    		}
 
 			        	$tags[]=$ind."='".$value."'";
