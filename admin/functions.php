@@ -901,37 +901,47 @@ function insertInto($arr,$keyArray,$tableName){
 	$arrayvals=array();
 	$arrayupdate=array();
 
+	foreach($arr as $key => $val):
+		$arraykeys[]=$key;
+		// 使用 mysqli_real_escape_string 避免 SQL 注入
+		$arrayvals[]=mysqli_real_escape_string($db_conn, $val);
 
-		foreach($arr as $key => $val):
-
-			$arraykeys[]=$key;
-			$arrayvals[]=$val;
-
-			if( !in_array($key,$keyArray)):
-
-				$arrayupdate[]= "`".$key."`"."="."VALUES("."`".$key."`".")";
-			endif;
-
-
-
-		endforeach;
+		if( !in_array($key,$keyArray)):
+			$arrayupdate[]= "`".$key."`"."="."VALUES("."`".$key."`".")";
+		endif;
+	endforeach;
 
 	$tb_row="`".implode("` , `", $arraykeys)."`";
 	$value="'".implode("' , '", $arrayvals)."'";
 	$updates=implode(" , ", $arrayupdate);
 
 	if (!$db_conn) {
+		error_log("insertInto 錯誤: 資料庫連線失敗");
 		die("資料庫連線失敗!");
 	}else{
+		// 設定 SQL 模式 - 移除嚴格模式以允許欄位沒有預設值
+		// 移除 STRICT_TRANS_TABLES 和 NO_ENGINE_SUBSTITUTION 以允許更寬鬆的插入
+		//$sql='SET @@SESSION.sql_mode = "";';
+		//mysqli_query($db_conn, $sql);
 
-		$sql='SET @@SESSION.sql_mode = "ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";';
-		mysqli_query($db_conn, $sql);
-
+		// 執行插入/更新
 		$sql = "INSERT INTO `".$tableName."` ( ".$tb_row.") VALUES (".$value.") ON DUPLICATE KEY UPDATE ".$updates.";";
-
-		mysqli_query($db_conn, $sql);
-
-
+		
+		// 記錄 SQL 語句到錯誤日誌（調試用）
+		error_log("insertInto SQL: " . $sql);
+		
+		$result = mysqli_query($db_conn, $sql);
+		
+		// 檢查執行結果
+		if (!$result) {
+			$error = mysqli_error($db_conn);
+			error_log("insertInto 錯誤: " . $error);
+			error_log("失敗的 SQL: " . $sql);
+			// 可選：根據需求決定是否要 die() 或返回 false
+			return false;
+		}
+		
+		return true;
 	}
 
 }
@@ -987,8 +997,8 @@ function insert_table($arr,$tableName){
 		echo "F";
 	}else{
 
-		$sql='SET @@SESSION.sql_mode = "ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";';
-		mysqli_query($db_conn, $sql);
+		//$sql='SET @@SESSION.sql_mode = "ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";';
+		//mysqli_query($db_conn, $sql);
 
 		$sql = "INSERT INTO `".$tableName."` ( ".$tb_row.") VALUES (".$value.");";
 		mysqli_query($db_conn, $sql);
