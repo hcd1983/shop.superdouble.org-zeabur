@@ -336,15 +336,34 @@ function insert_sql_file($file_path){
 	global $db_conn;
 
 	$file_content=file_get_contents($file_path);
+	
 	// Check connection
 	if (!$db_conn) {
+	    error_log("insert_sql_file 錯誤: 資料庫連線失敗");
 	    die("Connection failed: " . mysqli_connect_error());
+	}
+	
+	// 檢查連線是否還活著，如果斷線就重新連線
+	if (!mysqli_ping($db_conn)) {
+		error_log("insert_sql_file: 資料庫連線已斷開，嘗試重新連線");
+		global $dbset;
+		$db_conn = mysqli_connect($dbset["url"], $dbset["ur"], $dbset["pw"], $dbset["db"]);
+		if (!$db_conn) {
+			error_log("insert_sql_file: 重新連線失敗");
+			die("資料庫重新連線失敗!");
+		}
+		mysqli_query($db_conn, "SET NAMES utf8");
+		mysqli_query($db_conn, "SET time_zone = '+08:00'");
 	}
 
 	//$sql_quo_arr = explode(PHP_EOL, $sql_quo);
 	$file_content_arr =preg_split('/\r\n|\r|\n/', $file_content);
 	$output ="";
+	$line_count = 0;
+	$error_count = 0;
+	
 	foreach($file_content_arr as $row){
+		$line_count++;
 		$start_character = substr(trim($row), 0, 2);
 		if($start_character == '--' || $start_character == '/*' || $start_character == '//' || $row == ''){
 			continue;
@@ -354,19 +373,40 @@ function insert_sql_file($file_path){
 		$output = $output . $row;
 		$end_character = substr(trim($row), -1, 1);
 		if($end_character == ';'){
+			// 檢查連線狀態，避免長時間執行時斷線
+			if ($line_count % 100 == 0 && !mysqli_ping($db_conn)) {
+				error_log("insert_sql_file: 執行中連線斷開，嘗試重新連線");
+				global $dbset;
+				$db_conn = mysqli_connect($dbset["url"], $dbset["ur"], $dbset["pw"], $dbset["db"]);
+				if (!$db_conn) {
+					error_log("insert_sql_file: 重新連線失敗");
+					die("執行 SQL 檔案時資料庫連線失敗!");
+				}
+				mysqli_query($db_conn, "SET NAMES utf8");
+				mysqli_query($db_conn, "SET time_zone = '+08:00'");
+			}
+			
 			if(!mysqli_query($db_conn, $output)){
-				echo("Error description: " . mysqli_error($db_conn));
-				exit;
+				$error = mysqli_error($db_conn);
+				error_log("insert_sql_file 錯誤 (行 $line_count): " . $error);
+				error_log("失敗的 SQL: " . $output);
+				echo("Error description: " . $error);
+				$error_count++;
+				// 決定是否繼續執行還是停止
+				if ($error_count > 5) {
+					echo "<br>錯誤過多，停止執行";
+					exit;
+				}
 			}
 
 			$output="";
 		}
-
-
 	}
 
 	echo "<br>".$file_path." installed"."<hr>";
-
+	if ($error_count > 0) {
+		echo "警告：執行過程中發生 $error_count 個錯誤<br>";
+	}
 }
 
 //=============================================================================
@@ -851,30 +891,47 @@ function updateSettings($arr,$tableName){
 
 	global $db_conn;
 
-
-
 	$arraykeys=array();
 	$arrayvals=array();
 
-
-		foreach($arr as $key => $val):
-			$arraykeys[]=$key;
-
-			$arrayvals[]=$val;
-		endforeach;
+	foreach($arr as $key => $val):
+		$arraykeys[]=$key;
+		// 使用 mysqli_real_escape_string 避免 SQL 注入
+		$arrayvals[]=mysqli_real_escape_string($db_conn, $val);
+	endforeach;
 
 	$tb_row="`".implode("` , `", $arraykeys)."`";
 	$value="'".implode("' , '", $arrayvals)."'";
 
 	if (!$db_conn) {
+		error_log("updateSettings 錯誤: 資料庫連線失敗");
 		die("資料庫連線失敗!");
 	}else{
+		// 檢查連線是否還活著，如果斷線就重新連線
+		if (!mysqli_ping($db_conn)) {
+			error_log("updateSettings: 資料庫連線已斷開，嘗試重新連線");
+			global $dbset;
+			$db_conn = mysqli_connect($dbset["url"], $dbset["ur"], $dbset["pw"], $dbset["db"]);
+			if (!$db_conn) {
+				error_log("updateSettings: 重新連線失敗");
+				die("資料庫重新連線失敗!");
+			}
+			mysqli_query($db_conn, "SET NAMES utf8");
+			mysqli_query($db_conn, "SET time_zone = '+08:00'");
+		}
 
 		$sql = "REPLACE INTO `".$tableName."` ( ".$tb_row.") VALUES (".$value.");";
-		echo $sql;
-		mysqli_query($db_conn, $sql);
-
-
+		// 移除 echo，避免輸出過大的 SQL 語句造成 header 溢出
+		// echo $sql;
+		
+		$result = mysqli_query($db_conn, $sql);
+		if (!$result) {
+			$error = mysqli_error($db_conn);
+			error_log("updateSettings 錯誤: " . $error);
+			error_log("失敗的 SQL: " . $sql);
+			return false;
+		}
+		return true;
 	}
 
 }
@@ -918,16 +975,37 @@ function insertInto($arr,$keyArray,$tableName){
 		error_log("insertInto 錯誤: 資料庫連線失敗");
 		die("資料庫連線失敗!");
 	}else{
-		// 設定 SQL 模式 - 移除嚴格模式以允許欄位沒有預設值
-		// 移除 STRICT_TRANS_TABLES 和 NO_ENGINE_SUBSTITUTION 以允許更寬鬆的插入
-		$sql='SET @@SESSION.sql_mode = "";';
-		mysqli_query($db_conn, $sql);
+		// 檢查連線是否還活著，如果斷線就重新連線
+		if (!mysqli_ping($db_conn)) {
+			error_log("insertInto: 資料庫連線已斷開，嘗試重新連線");
+			global $dbset;
+			$db_conn = mysqli_connect($dbset["url"], $dbset["ur"], $dbset["pw"], $dbset["db"]);
+			if (!$db_conn) {
+				error_log("insertInto: 重新連線失敗");
+				die("資料庫重新連線失敗!");
+			}
+			mysqli_query($db_conn, "SET NAMES utf8");
+			mysqli_query($db_conn, "SET time_zone = '+08:00'");
+		}
+		
+		// 只在需要時設定 SQL 模式（檢查當前 sql_mode）
+		$mode_result = mysqli_query($db_conn, "SELECT @@SESSION.sql_mode as mode");
+		if ($mode_result) {
+			$mode_row = mysqli_fetch_assoc($mode_result);
+			// 只有當 sql_mode 包含 STRICT 相關設定時才重設
+			if (strpos($mode_row['mode'], 'STRICT') !== false || 
+			    strpos($mode_row['mode'], 'NO_ENGINE_SUBSTITUTION') !== false) {
+				$sql = 'SET @@SESSION.sql_mode = "";';
+				mysqli_query($db_conn, $sql);
+			}
+			mysqli_free_result($mode_result);
+		}
 
 		// 執行插入/更新
 		$sql = "INSERT INTO `".$tableName."` ( ".$tb_row.") VALUES (".$value.") ON DUPLICATE KEY UPDATE ".$updates.";";
 		
-		// 記錄 SQL 語句到錯誤日誌（調試用）
-		error_log("insertInto SQL: " . $sql);
+		// 只在需要調試時才記錄 SQL（避免大量資料造成 log 過大）
+		// error_log("insertInto SQL: " . $sql);
 		
 		$result = mysqli_query($db_conn, $sql);
 		
@@ -975,39 +1053,69 @@ function urldecodeArray($arr){
 
 function insert_table($arr,$tableName){
 
-
 	global $db_conn;
 
 	$arraykeys=array();
 	$arrayvals=array();
 	foreach($arr as $key => $val):
 		$arraykeys[]=$key;
-		$arrayvals[]=urlencode($val);
+		// 使用 mysqli_real_escape_string 避免 SQL 注入，並保留 urlencode
+		$arrayvals[]=mysqli_real_escape_string($db_conn, urlencode($val));
 	endforeach;
 
 	$tb_row="`".implode("` , `", $arraykeys)."`";
 	$value="'".implode("' , '", $arrayvals)."'";
 
-	$sql = "INSERT INTO `".$tableName."` ( ".$tb_row.") VALUES (".$value.");";
-
-
-
 	if (!$db_conn) {
+		error_log("insert_table 錯誤: 資料庫連線失敗");
 		echo "F";
+		return false;
 	}else{
-
-		$sql='SET @@SESSION.sql_mode = "";';
-		mysqli_query($db_conn, $sql);
+		// 檢查連線是否還活著，如果斷線就重新連線
+		if (!mysqli_ping($db_conn)) {
+			error_log("insert_table: 資料庫連線已斷開，嘗試重新連線");
+			global $dbset;
+			$db_conn = mysqli_connect($dbset["url"], $dbset["ur"], $dbset["pw"], $dbset["db"]);
+			if (!$db_conn) {
+				error_log("insert_table: 重新連線失敗");
+				echo "F";
+				return false;
+			}
+			mysqli_query($db_conn, "SET NAMES utf8");
+			mysqli_query($db_conn, "SET time_zone = '+08:00'");
+		}
+		
+		// 只在需要時設定 SQL 模式（檢查當前 sql_mode）
+		$mode_result = mysqli_query($db_conn, "SELECT @@SESSION.sql_mode as mode");
+		if ($mode_result) {
+			$mode_row = mysqli_fetch_assoc($mode_result);
+			// 只有當 sql_mode 包含 STRICT 相關設定時才重設
+			if (strpos($mode_row['mode'], 'STRICT') !== false || 
+			    strpos($mode_row['mode'], 'NO_ENGINE_SUBSTITUTION') !== false) {
+				$sql = 'SET @@SESSION.sql_mode = "";';
+				mysqli_query($db_conn, $sql);
+			}
+			mysqli_free_result($mode_result);
+		}
 
 		$sql = "INSERT INTO `".$tableName."` ( ".$tb_row.") VALUES (".$value.");";
-		mysqli_query($db_conn, $sql);
-
-		echo "S";
-
-
+		
+		// 只在需要調試時才記錄 SQL（避免大量資料造成 log 過大）
+		// error_log("insert_table SQL: " . $sql);
+		
+		$result = mysqli_query($db_conn, $sql);
+		
+		if ($result) {
+			echo "S";
+			return true;
+		} else {
+			$error = mysqli_error($db_conn);
+			error_log("insert_table 錯誤: " . $error);
+			error_log("失敗的 SQL: " . $sql);
+			echo "F";
+			return false;
+		}
 	}
-
-
 }
 
 
