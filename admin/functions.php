@@ -921,8 +921,8 @@ function insertInto($arr,$keyArray,$tableName){
 	}else{
 		// 設定 SQL 模式 - 移除嚴格模式以允許欄位沒有預設值
 		// 移除 STRICT_TRANS_TABLES 和 NO_ENGINE_SUBSTITUTION 以允許更寬鬆的插入
-		//$sql='SET @@SESSION.sql_mode = "";';
-		//mysqli_query($db_conn, $sql);
+		$sql='SET @@SESSION.sql_mode = "";';
+		mysqli_query($db_conn, $sql);
 
 		// 執行插入/更新
 		$sql = "INSERT INTO `".$tableName."` ( ".$tb_row.") VALUES (".$value.") ON DUPLICATE KEY UPDATE ".$updates.";";
@@ -997,8 +997,8 @@ function insert_table($arr,$tableName){
 		echo "F";
 	}else{
 
-		//$sql='SET @@SESSION.sql_mode = "ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";';
-		//mysqli_query($db_conn, $sql);
+		$sql='SET @@SESSION.sql_mode = "";';
+		mysqli_query($db_conn, $sql);
 
 		$sql = "INSERT INTO `".$tableName."` ( ".$tb_row.") VALUES (".$value.");";
 		mysqli_query($db_conn, $sql);
