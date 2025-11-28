@@ -97,23 +97,23 @@ function CountryShipping($country="",$shippingfee=0,$items=[],$coupon=""){
         case 'HK':
             $shipping_1150  = 1150;
             $shipping_700  = 700;
-            $shipping_250  = 250;
-            $shipping_200  = 200;
+            $shipping_250  = 440;
+            $shipping_200  = 440;
 
             break;
 
         case 'MO':
             $shipping_1150  = 1200;
             $shipping_700  = 750;
-            $shipping_250  = 300;
-            $shipping_200  = 250;
+            $shipping_250  = 440;
+            $shipping_200  = 440;
 
             break;  
         case 'CN':
             $shipping_1150  = 2050;
             $shipping_700  = 1300;
-            $shipping_250  = 400;
-            $shipping_200  = 350;
+            $shipping_250  = 500;
+            $shipping_200  = 500;
 
             break;
 
