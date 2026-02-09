@@ -7,6 +7,7 @@ php_value max_execution_time 600
 php_value max_input_time 600
 php_value memory_limit 256M
 php_value max_file_uploads 50
+php_value max_input_vars 10000
 </IfModule>
 
 # PHP 5 版本支援
@@ -17,6 +18,7 @@ php_value max_execution_time 600
 php_value max_input_time 600
 php_value memory_limit 256M
 php_value max_file_uploads 50
+php_value max_input_vars 10000
 </IfModule>
 
 # LiteSpeed 伺服器設定
@@ -26,6 +28,7 @@ php_value post_max_size 100M
 php_value max_execution_time 600
 php_value max_input_time 600
 php_value memory_limit 256M
+php_value max_input_vars 10000
 </IfModule>
 
 # FastCGI 設定（如果使用 FastCGI）
